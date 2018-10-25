@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+
+    django:
+        build:
+            context: .
+            dockerfile: ./docker/develop/django/Dockerfile
+        command: sh ./docker/develop/django/entrypoint.sh
+        env_file: ./docker/develop/django/.env
+        ports:
+        - 8000:8000
+        volumes:
+        - .:/app
+        - static_volume:/static
+        depends_on:
+        - postgres
+        networks:
+        - nginx_network
+        - postgres_network
+
+    postgres:
+        build:
+            context: .
+            dockerfile: ./docker/develop/postgres/Dockerfile
+        env_file: ./docker/develop/postgres/.env
+        volumes:
+        - ./db:/pgdata/db
+        - postgres_volume:/pgdata
+        networks:
+        - postgres_network
+
+    nginx:
+        image: nginx:latest
+        ports:
+        - 8080:80
+        volumes:
+        - ./docker/develop/nginx/conf.d/:/etc/nginx/conf.d/
+        - static_volume:/static
+        depends_on:
+        - django
+        networks:
+        - nginx_network
+        
+networks:
+    nginx_network:
+        driver: bridge
+    postgres_network:
+        driver: bridge
+
+volumes:
+    static_volume:
+    postgres_volume:
