@@ -1,4 +1,4 @@
-django==2.1
+django>=2.1.2
 djangorestframework==3.8
 dj_database_url
 psycopg2-binary>=2.7
